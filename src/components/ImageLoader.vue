@@ -4,20 +4,22 @@
     <div id="drop-target" @dragover.prevent @drop.prevent="loadImage">
       <span id="drop-target-title">Drop Images Here</span>
     </div>
-    <canvas id="canvas"></canvas>
+    <div id="image-previews"></div>
   </div>
 </template>
 
 <script>
+import Jimp from "jimp";
+import { ArrayBufferToString } from "../util";
 export default {
   name: "ImageLoader",
   props: {
-    msg: String
+    // callback: Function
   },
   methods: {
     render: function(src) {
       var image = new Image();
-      var MAX_HEIGHT = 10;
+      var MAX_HEIGHT = 1000;
       image.onload = function() {
         var canvas = document.getElementById("canvas");
         if (image.height > MAX_HEIGHT) {
@@ -25,23 +27,53 @@ export default {
           image.height = MAX_HEIGHT;
         }
         var ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = image.width;
-        canvas.height = image.height;
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // canvas.width = image.width;
+        // canvas.height = image.height;
         ctx.drawImage(image, 0, 0, image.width, image.height);
       };
       image.src = src;
     },
+    renderPreview: function(buf) {
+      var imageElem = document.createElement("img");
+      imageElem.src = "data:image/jpeg;base64," + buf.toString("base64");
+      var container = document.getElementById("image-previews");
+      container.appendChild(imageElem)
+    },
     loadImage: function(e) {
-      var reader = new FileReader();
-      reader.onload = e => {
-        this.render(e.target.result);
-      };
+      // reader.onload = e => {
+      //   this.render(e.target.result);
+      // };
 
+      const binaryStrings = [];
       const files = e.dataTransfer.files;
       console.log(files);
 
-      files.forEach(file => reader.readAsDataURL(file));
+      files.forEach(file => {
+        var reader = new FileReader();
+        reader.onload = e => {
+          var arrayBuffer = e.target.result;
+          // var array = new Uint8Array(arrayBuffer);
+          // var binaryString = new TextDecoder().decode(array);
+          console.log("done");
+          binaryStrings.push(arrayBuffer);
+          if (binaryStrings.length === files.length) {
+            this.loadPreviews(binaryStrings);
+            this.$emit("image-loader-done", binaryStrings);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      // files.forEach(file => reader.readAsDataURL(file));
+    },
+    loadPreviews: function(binaryStrings) {
+      binaryStrings.forEach(str => {
+        Jimp.read(str).then(image => {
+          image.resize(Jimp.AUTO, 100);
+          image.getBufferAsync(Jimp.MIME_PNG).then(this.renderPreview);
+        });
+      });
     }
   }
 };
@@ -86,7 +118,8 @@ a {
 }
 
 #canvas {
-  background-color: aliceblue;
+  margin-top: 2rem;
+  border: 5px solid black;
   width: 1000px;
   height: 350px;
 }
