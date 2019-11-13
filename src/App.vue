@@ -48,6 +48,15 @@ export default {
     ImageLoader,
     ImageCalibrator
   },
+  mounted: function() {
+    document.onkeydown = function(evt) {
+      evt = evt || window.event;
+      var keyCode = evt.keyCode;
+      if (keyCode >= 37 && keyCode <= 40) {
+        return false;
+      }
+    };
+  },
   computed: {
     step_1_done: function() {
       return (
@@ -86,7 +95,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  padding:3rem;
+  padding: 3rem;
   padding-bottom: 20rem;
 }
 
