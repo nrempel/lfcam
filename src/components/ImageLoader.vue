@@ -35,35 +35,39 @@ export default {
       image.src = src;
     },
     renderPreview: function(buf) {
-      var imageElem = document.createElement("img");
-      imageElem.src = "data:image/jpeg;base64," + buf.toString("base64");
-      var container = document.getElementById("image-previews");
-      container.appendChild(imageElem)
+      // var imageElem = document.createElement("img");
+      // imageElem.src = "data:image/jpeg;base64," + buf.toString("base64");
+      // var container = document.getElementById("image-previews");
+      // container.appendChild(imageElem)
+      const span = document.createElement("span");
+      span.textContent = `${12} images loaded`;
+      // var container = document.getElementById("image-previews");
+      // container.appendChild(imageElem)
     },
-    loadImage: function(e) {
+    loadImage: async function(e) {
       // reader.onload = e => {
       //   this.render(e.target.result);
       // };
 
       const binaryStrings = [];
       const files = e.dataTransfer.files;
-      console.log(files);
+      this.$emit("image-load-size", files.length);
 
-      files.forEach(file => {
-        var reader = new FileReader();
-        reader.onload = e => {
-          var arrayBuffer = e.target.result;
-          // var array = new Uint8Array(arrayBuffer);
-          // var binaryString = new TextDecoder().decode(array);
-          console.log("done");
-          binaryStrings.push(arrayBuffer);
-          if (binaryStrings.length === files.length) {
-            this.loadPreviews(binaryStrings);
-            this.$emit("image-loader-done", binaryStrings);
-          }
-        };
-        reader.readAsArrayBuffer(file);
-      });
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        // const promise = new Promise((resolve, reject) => {
+          reader.onloadend = e => {
+            this.$emit("image-loaded", e.target.result);
+            // resolve(e.target.result);
+          };
+        // });
+        reader.readAsDataURL(file);
+        
+        // const imageData = await promise;
+        console.log("image data read");
+        // this.$emit("image-loaded", imageData);
+      }
 
       // files.forEach(file => reader.readAsDataURL(file));
     },
