@@ -45,19 +45,19 @@ export default {
     window.addEventListener("keydown", e => {
       switch (e.keyCode) {
         case 37:
-          this.leftPressed();
+          this.leftPressed(e.shiftKey);
           return false;
           break;
         case 38:
-          this.upPressed();
+          this.upPressed(e.shiftKey);
           return false;
           break;
         case 39:
-          this.rightPressed();
+          this.rightPressed(e.shiftKey);
           return false;
           break;
         case 40:
-          this.downPressed();
+          this.downPressed(e.shiftKey);
           return false;
           break;
 
@@ -95,21 +95,23 @@ export default {
       this.imageStates[this.currentImageIndex]["visible"] = false;
       this.currentImageIndex--;
     },
-    leftPressed() {
-      console.log("leftPressed");
-      this.imageStates[this.currentImageIndex]["dx"]--;
+    leftPressed(shift) {
+      const delta = shift ? 10 : 1;
+      this.imageStates[this.currentImageIndex]["dx"] -= delta;
     },
-    downPressed() {
-      console.log("downPressed");
-      this.imageStates[this.currentImageIndex]["dy"]++;
+    downPressed(shift) {
+      const delta = shift ? 10 : 1;
+      this.imageStates[this.currentImageIndex]["dy"] += delta;
     },
-    rightPressed() {
+    rightPressed(shift) {
       console.log("rightPressed");
-      this.imageStates[this.currentImageIndex]["dx"]++;
+      const delta = shift ? 10 : 1;
+      this.imageStates[this.currentImageIndex]["dx"] += delta;
     },
-    upPressed() {
+    upPressed(shift) {
       console.log("upPressed");
-      this.imageStates[this.currentImageIndex]["dy"]--;
+      const delta = shift ? 10 : 1;
+      this.imageStates[this.currentImageIndex]["dy"] -= delta;
     }
   }
 };
