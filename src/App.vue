@@ -14,7 +14,7 @@
     />
     <div v-if="steps['1'].imageBuffers.length > 0">
       {{ steps["1"].imageBuffers.length }} images loaded
-      <div v-if="step_1_done" class="sk-fading-circle">
+      <div v-if="!step_1_done" class="sk-fading-circle">
         <div class="sk-circle1 sk-circle"></div>
         <div class="sk-circle2 sk-circle"></div>
         <div class="sk-circle3 sk-circle"></div>
@@ -30,25 +30,29 @@
       </div>
       <div v-else><b>done!</b></div>
     </div>
-
-    <h2>Step 2: calibrate image offsets</h2>
+    <div v-if="step_1_done">
+      <h2>Step 2: calibrate image offsets</h2>
+      <ImageCalibrator v-bind:image-data="this.steps['1'].imageBuffers" />
+    </div>
   </div>
 </template>
 
 <script>
 import ImageLoader from "./components/ImageLoader.vue";
+import ImageCalibrator from "./components/ImageCalibrator.vue";
 import Jimp from "jimp";
 
 export default {
   name: "app",
   components: {
-    ImageLoader
+    ImageLoader,
+    ImageCalibrator
   },
   computed: {
     step_1_done: function() {
       return (
         this.steps["1"].imageLoadSize != null &&
-        this.steps["1"].imageBuffers.length < this.steps["1"].imageLoadSize
+        this.steps["1"].imageBuffers.length == this.steps["1"].imageLoadSize
       );
     }
   },
@@ -65,9 +69,9 @@ export default {
   // },
   methods: {
     imageLoaderCallback: function(imageData) {
-      console.log("imageData");
+      // console.log("imageData");
       this.steps["1"].imageBuffers.push(imageData);
-      console.log(imageData);
+      // console.log(imageData);
     },
     imageLoadSize: function(loadSize) {
       this.steps["1"].imageLoadSize = loadSize;
@@ -82,7 +86,8 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  padding: 3rem;
+  padding:3rem;
+  padding-bottom: 20rem;
 }
 
 .sk-fading-circle {
