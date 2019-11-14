@@ -6,7 +6,7 @@
       Refresh the page to restart.
     </p>
     <h2>Step 1: load your images</h2>
-    <!-- <p>With large files this can take a minute so be patient.</p> -->
+    <p>With large files this can take a minute.</p>
     <ImageLoader
       v-show="steps['1'].imageBuffers.length == 0"
       @image-loaded="imageLoaderCallback"
@@ -32,7 +32,14 @@
     </div>
     <div v-if="step_1_done">
       <h2>Step 2: calibrate image offsets</h2>
-      <ImageCalibrator v-bind:image-data="this.steps['1'].imageBuffers" />
+      <ImageCalibrator
+        v-bind:image-data="this.steps['1'].imageBuffers"
+        @image-calibrated="imageCalibrated"
+      />
+    </div>
+    <div v-if="step_1_done && step_2_done">
+      <h2>Step 3: refocus your shot</h2>
+      <ImageRefocuser v-bind:image-data="this.imageStates" />
     </div>
   </div>
 </template>
@@ -40,13 +47,14 @@
 <script>
 import ImageLoader from "./components/ImageLoader.vue";
 import ImageCalibrator from "./components/ImageCalibrator.vue";
-import Jimp from "jimp";
+import ImageRefocuser from "./components/ImageRefocuser.vue";
 
 export default {
   name: "app",
   components: {
     ImageLoader,
-    ImageCalibrator
+    ImageCalibrator,
+    ImageRefocuser
   },
   mounted: function() {
     document.onkeydown = function(evt) {
@@ -63,6 +71,9 @@ export default {
         this.steps["1"].imageLoadSize != null &&
         this.steps["1"].imageBuffers.length == this.steps["1"].imageLoadSize
       );
+    },
+    step_2_done: function() {
+      return this.imageStates != null;
     }
   },
   data: () => ({
@@ -71,7 +82,8 @@ export default {
         imageBuffers: [],
         imageLoadSize: null
       }
-    }
+    },
+    imageStates: null
   }),
   // computed: {
   //   imageCount
@@ -84,6 +96,10 @@ export default {
     },
     imageLoadSize: function(loadSize) {
       this.steps["1"].imageLoadSize = loadSize;
+    },
+    imageCalibrated: function(imageStates) {
+      this.imageStates = imageStates;
+      console.log(this.imageStates);
     }
   }
 };

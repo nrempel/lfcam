@@ -1,11 +1,32 @@
 <template v-on:keydown="keyDown">
   <div>
     <p>
-      Calibrating {{ currentImageIndex + 1 }} of {{ imageData.length }} images
+      Calibrating image {{ currentImageIndex + 1 }} of {{ imageData.length }}
     </p>
-    <button class="button" v-on:click="prevImage">previous image</button>
-    <button class="button" v-on:click="nextImage">next image</button>
-    <div id="calibration-zone">
+    <p>Choose a subject in your shot and line up each image with the subject.</p>
+    <button v-if="!imageLocked" class="button" v-on:click="prevImage">
+      previous image
+    </button>
+    <button v-if="!imageLocked" class="button" v-on:click="nextImage">
+      next image
+    </button>
+    <button
+      v-if="currentImageIndex == imageData.length - 1"
+      class="button"
+      v-on:click="lockImage"
+    >
+      lock image
+    </button>
+    <br>
+    <div
+      v-if="!imageLocked"
+      id="calibration-zone"
+      v-bind:style="{
+        width: imageLocked ? 'auto' : '100%',
+        height: imageLocked ? 'auto' : '600px',
+        border: imageLocked ? 'none' : '1px solid black'
+      }"
+    >
       <div v-for="(imageState, key) in imageStates" :key="key">
         <img
           height="400"
@@ -22,7 +43,6 @@
 </template>
 
 <script>
-import CalibratorImage from "./CalibratorImage.vue";
 import Vue from "vue";
 export default {
   name: "ImageCalibrator",
@@ -38,7 +58,8 @@ export default {
     return {
       // images: this.imageArray,
       currentImageIndex: 0,
-      imageStates: null
+      imageStates: null,
+      imageLocked: false
     };
   },
   mounted: function() {
@@ -95,6 +116,28 @@ export default {
       this.imageStates[this.currentImageIndex]["visible"] = false;
       this.currentImageIndex--;
     },
+    lockImage() {
+      // normalize dx/dy to 0
+      let smallestX = this.imageStates[0]["dx"];
+      let smallestY = this.imageStates[0]["dy"];
+      for (let i in this.imageStates) {
+        if (this.imageStates[i]["dx"] < smallestX) {
+          smallestX = this.imageStates[i]["dx"];
+        }
+        if (this.imageStates[i]["dy"] < smallestX) {
+          smallestX = this.imageStates[i]["dy"];
+        }
+      }
+
+      for (let i in this.imageStates) {
+        this.imageStates[i]["dx"] -= smallestX;
+        this.imageStates[i]["dy"] -= smallestY;
+      }
+
+      this.imageLocked = true;
+
+      this.$emit("image-calibrated", this.imageStates);
+    },
     leftPressed(shift) {
       const delta = shift ? 10 : 1;
       this.imageStates[this.currentImageIndex]["dx"] -= delta;
@@ -121,9 +164,7 @@ export default {
 <style scoped>
 #calibration-zone {
   position: relative;
-  border: 1px solid black;
-  width: 100%;
-  height: 600px;
+  display: inline-block;
 }
 
 img {
