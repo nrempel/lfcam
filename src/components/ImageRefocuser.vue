@@ -1,22 +1,21 @@
 <template>
-  <div
-    id="calibration-zone"
-    v-bind:style="{
-      width: imageLocked ? 'auto' : '100%',
-      height: imageLocked ? 'auto' : '600px',
-      border: imageLocked ? 'none' : '1px solid black'
-    }"
-  >
-    <div v-for="(imageState, key) in imageStates" :key="key">
-      <img
-        height="400"
-        v-show="imageState.visible"
-        v-bind:style="{
-          top: `${imageState.dy}px`,
-          left: `${imageState.dx}px`
-        }"
-        v-bind:src="imageState.data"
-      />
+  <div>
+    <label for="depth"
+      >image depth
+      <input v-model="sliderValue" @input="changeDepth" type="range" id="depth" min="1" max="400" value="200" step="0.5" />
+    </label>
+    <br/>
+    <div id="image-wrapper">
+      <div v-for="(imageState, key) in imageStates" :key="key">
+        <img
+          height="600"
+          v-bind:style="{
+            top: `${imageState.dy}px`,
+            left: `${imageState.dx - fromCenter * key}px`
+          }"
+          v-bind:src="imageState.data"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -26,12 +25,14 @@ import Vue from "vue";
 export default {
   name: "ImageRefocuser",
   props: {
-    imageData: Array
+    imageData: Object
   },
 
   data: function() {
     return {
-      imageStates: this.imageStates
+      imageStates: this.imageData,
+      sliderValue: 200,
+      fromCenter: 0
     };
   },
   mounted: function() {
@@ -61,19 +62,24 @@ export default {
     });
   },
   created: function() {
-    const imageStates = {};
-    for (let i = 0; i < this.imageData.length; i++) {
-      const image = this.imageData[i];
-      imageStates[i] = {};
-      imageStates[i]["data"] = image;
-      imageStates[i]["visible"] = false;
-      imageStates[i]["dx"] = 50 + 10 * i;
-      imageStates[i]["dy"] = 50 + 10 * i;
-    }
-    imageStates[0]["visible"] = true;
-    this.imageStates = imageStates;
+    // const imageStates = {};
+    // for (let i = 0; i < this.imageData.length; i++) {
+    //   const image = this.imageData[i];
+    //   imageStates[i] = {};
+    //   imageStates[i]["data"] = image;
+    //   imageStates[i]["visible"] = false;
+    //   imageStates[i]["dx"] = 50 + 10 * i;
+    //   imageStates[i]["dy"] = 50 + 10 * i;
+    // }
+    // imageStates[0]["visible"] = true;
+    // this.imageStates = imageStates;
   },
-  methods: {}
+  methods: {
+    changeDepth() {
+      // [200, 200]
+      this.fromCenter = 200 - this.sliderValue
+    }
+  }
 };
 </script>
 
@@ -89,5 +95,16 @@ img {
   font-size: 1rem;
   margin-bottom: 2rem;
   margin-right: 1rem;
+}
+
+#image-wrapper {
+  position: relative;
+  margin-left:5rem;
+  margin-bottom: 20rem;
+}
+
+input {
+  width: 400px;
+  margin-bottom: 2rem;
 }
 </style>

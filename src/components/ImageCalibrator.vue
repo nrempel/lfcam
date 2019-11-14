@@ -11,7 +11,7 @@
       next image
     </button>
     <button
-      v-if="currentImageIndex == imageData.length - 1"
+      v-if="currentImageIndex == imageData.length - 1 && !imageLocked"
       class="button"
       v-on:click="lockImage"
     >
