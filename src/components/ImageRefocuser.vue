@@ -8,7 +8,7 @@
     <div id="image-wrapper">
       <div v-for="(imageState, key) in imageStates" :key="key">
         <img
-          height="600"
+          height="450"
           v-bind:style="{
             top: `${imageState.dy}px`,
             left: `${imageState.dx - fromCenter * key}px`
@@ -25,7 +25,7 @@ import Vue from "vue";
 export default {
   name: "ImageRefocuser",
   props: {
-    imageData: Object
+    imageData: Array
   },
 
   data: function() {
@@ -104,7 +104,7 @@ img {
 }
 
 input {
-  width: 400px;
+  width: 300px;
   margin-bottom: 2rem;
 }
 </style>

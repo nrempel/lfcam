@@ -5,6 +5,9 @@
       All images are processed in the browser. Nothing is sent to any server.
       Refresh the page to restart.
     </p>
+    <p>
+      For a demo on how to use this, watch <a href="https://vimeo.com/376894669" target="_blank">this video</a>.
+    </p>
     <h2>Step 1: load your images</h2>
     <p>With large files this can take a minute.</p>
     <ImageLoader

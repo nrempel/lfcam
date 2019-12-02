@@ -3,7 +3,12 @@
     <p>
       Calibrating image {{ currentImageIndex + 1 }} of {{ imageData.length }}
     </p>
-    <p>Choose a subject in your shot and line up each image with the subject.</p>
+    <p>
+      Choose a subject in your shot and line up each image with the subject. Continue this process for each image.
+    </p>
+    <p>
+      Use the arrow keys to move the images. Shift+arrow keys moves faster.
+    </p>
     <button v-if="!imageLocked" class="button" v-on:click="prevImage">
       previous image
     </button>
@@ -17,7 +22,7 @@
     >
       lock image
     </button>
-    <br>
+    <br />
     <div
       v-if="!imageLocked"
       id="calibration-zone"
@@ -29,7 +34,7 @@
     >
       <div v-for="(imageState, key) in imageStates" :key="key">
         <img
-          height="400"
+          height="450"
           v-show="imageState.visible"
           v-bind:style="{
             top: `${imageState.dy}px`,
@@ -43,6 +48,7 @@
 </template>
 
 <script>
+import _ from "lodash";
 import Vue from "vue";
 export default {
   name: "ImageCalibrator",
@@ -134,9 +140,12 @@ export default {
         this.imageStates[i]["dy"] -= smallestY;
       }
 
+      const imageCollection = Object.values(this.imageStates)
+      _.sortBy(imageCollection, ['dx']);
+
       this.imageLocked = true;
 
-      this.$emit("image-calibrated", this.imageStates);
+      this.$emit("image-calibrated", imageCollection);
     },
     leftPressed(shift) {
       const delta = shift ? 10 : 1;
